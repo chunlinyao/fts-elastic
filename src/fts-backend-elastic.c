@@ -977,7 +977,7 @@ fts_backend_elastic_lookup(struct fts_backend *_backend, struct mailbox *box,
 
     /* if no fields were added, add some sensible default fields */
     if (str_len(fields) == 0 && str_len(fields_not) == 0) {
-        str_append(fields, "\"from\",\"to\",\"cc\",\"bcc\",\"sender\",\"subject\",\"body\"");
+        str_append(fields, "\"from\",\"to\",\"cc\",\"bcc\",\"sender\",\"subject\",\"body\",\"subject.japanese\",\"body.japanese\"");
     }
 
     /* generate json search query */
