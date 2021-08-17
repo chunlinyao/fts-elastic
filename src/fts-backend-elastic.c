@@ -23,7 +23,7 @@
 #include "elastic-connection.h"
 
 /* values that must be replaced in field names */
-static const char *elastic_field_replace_chars = ".#*\"";
+static const char *elastic_field_replace_chars = "#*\"";
 static const char *escape_hex_chars = "0123456789abcdefABCDEF";
 
 struct elastic_fts_backend {
@@ -502,6 +502,9 @@ fts_backend_elastic_header_want(const char *name)
         strcasecmp(name, "Cc") == 0 ||
         strcasecmp(name, "Bcc") == 0 ||
         strcasecmp(name, "Subject") == 0 ||
+        strcasecmp(name, "Subject.Japanese") == 0 ||
+        strcasecmp(name, "Body.Japanese") == 0 ||
+        strcasecmp(name, "Body") == 0 ||
         strcasecmp(name, "Sender") == 0 ||
         strcasecmp(name, "Message-ID") == 0;
 }
@@ -863,12 +866,13 @@ elastic_add_definite_query(string_t *_fields, string_t *_fields_not,
          * because body can be selected in addition to other fields. it's 
          * trimmed later before being passed to ES if it's the last element. */
         str_append(fields, "\"body\",");
+        str_append(fields, "\"body.japanese\",");
 
         break;
     case SEARCH_HEADER: /* fall through */
     case SEARCH_HEADER_ADDRESS: /* fall through */
     case SEARCH_HEADER_COMPRESS_LWSP:
-        if (!fts_header_want_indexed(arg->hdr_field_name)) {
+        if (!fts_backend_elastic_header_want(arg->hdr_field_name)) {
             i_debug("fts_elastic: field %s was skipped", arg->hdr_field_name);
             return FALSE;
         }
